@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,19 +8,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
+
 <body>
     <div id="app">
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">G1-T7 Clothing Store</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                                 Men's Clothing
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
@@ -28,7 +32,8 @@
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                                 Women's Clothing
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
@@ -46,7 +51,8 @@
                     </form>
                     <ul class="navbar-nav mb-2 mb-lg-0">
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProfileLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProfileLink" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
                                 Profile
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownProfileLink">
@@ -59,36 +65,109 @@
             </div>
         </nav>
 
-        <!-- Catalogue Section -->
+        <!-- Clothing Catalogue Section -->
         <div class="container mt-5">
             <h2 class="text-center">Clothing Catalogue</h2>
             <div class="row">
-                <!-- Placeholder for Shirts -->
-                <div class="col-12 col-md-6">
-                    <h3>Shirts</h3>
-                    <!-- Shirts items will be inserted here -->
+                <!-- Iterate over random catalogue items -->
+                <div class="col-md-4" v-for="(item, index) in randomCatalogueItems" :key="index">
+                    <div class="card mb-3">
+                        <img :src="item.filepath" class="card-img-top" alt="Catalogue Item"
+                            style="height: 300px; object-fit: contain; width: 100%;">
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Product name and stock -->
+                                <div class="col-8">
+                                    <h5 class="card-title">{{ item.product_name }}</h5>
+                                    <p class="card-text"><small class="text-muted">Stock: {{ item.stock }}</small></p>
+                                </div>
+                                <!-- Price -->
+                                <div class="col-4 text-right">
+                                    <h5 class="card-title">${{ item.price }}</h5>
+                                </div>
+                            </div>
+                            <!-- Add to cart button -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <button class="btn btn-primary w-100 mt-2">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <!-- Placeholder for Pants -->
-                <div class="col-12 col-md-6">
-                    <h3>Pants</h3>
-                    <!-- Pants items will be inserted here -->
+
+            </div>
+        </div>
+
+        <!-- Shirts Section -->
+        <h3 class="text-center">Shirts</h3>
+        <div class="container">
+            <div class="row">
+                <!-- Iterate over random shirts -->
+                <div class="col-md-4" v-for="(shirt, index) in randomShirts" :key="index">
+                    <div class="card mb-3">
+                        <img :src="shirt.filepath" class="card-img-top" alt="Catalogue Item"
+                            style="height: 300px; object-fit: contain; width: 100%;">
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Product name and stock -->
+                                <div class="col-8">
+                                    <h5 class="card-title">{{ shirt.product_name }}</h5>
+                                    <p class="card-text"><small class="text-muted">Stock: {{ shirt.stock }}</small></p>
+                                </div>
+                                <!-- Price -->
+                                <div class="col-4 text-right">
+                                    <h5 class="card-title">${{ shirt.price }}</h5>
+                                </div>
+                            </div>
+                            <!-- Add to cart button -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <button class="btn btn-primary w-100 mt-2">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        Vue.createApp({
-            data() {
-                return {
-                    // Define your dynamic data here, e.g., product list
-                };
-            },
-            methods: {
-                // Define methods to manipulate data here
-            }
-        }).mount('#app');
-    </script>
+        <!-- Pants Section -->
+        <h3 class="text-center">Pants</h3>
+        <div class="container">
+            <div class="row">
+                <!-- Iterate over random pants -->
+                <div class="col-md-4" v-for="(pant, index) in randomPantsItems" :key="index">
+                    <!-- Pant item -->
+                    <div class="card mb-3">
+                        <img :src="pant.filepath" class="card-img-top" alt="Pants Item"
+                            style="height: 300px; object-fit: contain; width: 100%;">
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Product name and stock -->
+                                <div class="col-8">
+                                    <h5 class="card-title">{{ pant.product_name }}</h5>
+                                    <p class="card-text"><small class="text-muted">Stock: {{ pant.stock }}</small></p>
+                                </div>
+                                <!-- Price -->
+                                <div class="col-4 text-right">
+                                    <h5 class="card-title">${{ pant.price }}</h5>
+                                </div>
+                            </div>
+                            <!-- Add to cart button -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <button class="btn btn-primary w-100 mt-2">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="js/app.js"></script>
+
 </body>
+
 </html>
