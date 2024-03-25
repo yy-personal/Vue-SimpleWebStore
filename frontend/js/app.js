@@ -1,22 +1,12 @@
-function shuffle(array) {
-    let currentIndex = array.length, randomIndex;
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex], array[currentIndex]];
-    }
-    return array;
-}
-
 const app = Vue.createApp({
     data() {
         return {
             catalogue: JSON.parse(localStorage.getItem('catalogueData')) || [],
-            randomCatalogueItems: [],
-            randomShirts: [],
-            randomPantsItems: [],
-            filteredItems: []
+            filteredItems: [],
+            pantsItems: [],
+            shirtsItems: [],
+            cartItems: []
+
         };
     },
     mounted() {
@@ -24,8 +14,14 @@ const app = Vue.createApp({
             // Load initial data if Local Storage is empty
             this.loadInitialData();
         }
-        this.populateRandomItems();
+        this.populateItems();
         this.loadItemsForPage();
+
+        // Load cart items from localStorage if present
+        const storedCartItems = localStorage.getItem('cartItems');
+        if (storedCartItems) {
+            this.cartItems = JSON.parse(storedCartItems);
+        }
     },
     methods: {
         loadInitialData() {
@@ -108,18 +104,43 @@ const app = Vue.createApp({
             localStorage.setItem('catalogueData', JSON.stringify(initialCatalogue));
             this.catalogue = initialCatalogue;
         },
-        populateRandomItems() {
-            // shuffle and select items
-            let shuffledCatalogue = shuffle([...this.catalogue]);
-            this.randomCatalogueItems = shuffledCatalogue.slice(0, 3);
-            this.randomShirts = shuffledCatalogue.filter(item => item.type === 'shirt').slice(0, 3);
-            this.randomPantsItems = shuffledCatalogue.filter(item => item.type === 'pant').slice(0, 3);
+        populateItems(){
+            this.pantsItems = this.catalogue.filter(item => item.type === 'pant');
+            this.shirtsItems = this.catalogue.filter(item => item.type === 'shirt');
         },
-        loadItemsForPage() {
-            const pageGender = document.body.getAttribute('data-page-gender');
-            const pageType = document.body.getAttribute('data-page-type');
-            this.filteredItems = this.catalogue.filter(item =>
-                item.gender === pageGender && item.type === pageType);
+        addToCart(item) {
+            if (item.stock > 0) {
+                const existingItem = this.cartItems.find(cartItem => cartItem.product_name === item.product_name);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    this.cartItems.push({ ...item, quantity: 1 });
+                }
+                // Decrease the stock in the catalogue
+                item.stock -= 1;
+                localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+                // Update the catalogue in localStorage
+                localStorage.setItem('catalogueData', JSON.stringify(this.catalogue));
+            } else {
+                alert('This item is out of stock.');
+            }
+        },
+        clearCart() {
+            // Loop through each item in the cart
+            this.cartItems.forEach(cartItem => {
+                // Find the corresponding item in the catalogue
+                const itemInCatalogue = this.catalogue.find(item => item.product_name === cartItem.product_name);
+                if (itemInCatalogue) {
+                    // Return the stock to its original value
+                    itemInCatalogue.stock += cartItem.quantity;
+                }
+            });
+            // Clear the cart
+            this.cartItems = [];
+            // Update both the cart and catalogue in Local Storage
+            localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+            localStorage.setItem('catalogueData', JSON.stringify(this.catalogue));
         }
+        
     }
 }).mount('#app');
