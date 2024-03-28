@@ -119,6 +119,32 @@ const app = Vue.createApp({
             this.cartItems = []; // Clear the cart
             localStorage.setItem('cartItems', JSON.stringify(this.cartItems)); // Update both the cart and catalogue in Local Storage
             localStorage.setItem('catalogueData', JSON.stringify(this.catalogue));
-        }
+        },checkout() {
+            // Calculate the total price of items in the cart
+            let totalPrice = this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+            // Display the total price and provide options for payment
+            const confirmCheckout = confirm(`Total Price: $${totalPrice.toFixed(2)}\nProceed to payment?`);
+            if (confirmCheckout) {
+                // Decrease stock based on items checked out
+                this.cartItems.forEach(cartItem => {
+                    const itemInCatalogue = this.catalogue.find(item => item.product_name === cartItem.product_name);
+                    if (itemInCatalogue) {
+                        itemInCatalogue.stock -= 0; // Decrease stock by the quantity checked out
+                    }
+                });
+
+                // Clear the cart after successful payment
+                this.cartItems = [];
+                localStorage.setItem('cartItems', JSON.stringify(this.cartItems)); // Update cart in local storage
+                localStorage.setItem('catalogueData', JSON.stringify(this.catalogue)); // Update catalogue in local storage
+
+                alert('Payment successful. Stock updated.');
+            } else {
+                // Handle cancellation of checkout
+                alert('Checkout canceled.');
+            }
+        },
+
     }
 }).mount('#app');
