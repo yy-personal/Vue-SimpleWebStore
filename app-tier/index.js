@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-const port = 4000;
+const port = 5000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -13,6 +13,10 @@ app.use(cors());
 // Health Checking
 app.get('/health', (req, res) => {
     res.json("This is the health check for catalogue");
+});
+
+app.get('/api/health2', (req, res) => {
+    res.json({ message: "Health Check 2: Catalogue service is up and running." });
 });
 
 // ADD CATALOGUE ITEM
