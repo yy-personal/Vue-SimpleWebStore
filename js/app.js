@@ -146,5 +146,10 @@ const app = Vue.createApp({
             }
         },
 
-    }
+    },
+    computed: {
+        getTotalPrice() {
+            return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
+        }
+    },
 }).mount('#app');
