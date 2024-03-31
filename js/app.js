@@ -104,6 +104,13 @@ const app = Vue.createApp({
                     }
                 });
 
+                // Prepare order details
+                const order_details = this.cartItems.map(cartItem => ({
+                    product_name: cartItem.product_name,
+                    quantity: cartItem.quantity
+                }));
+                this.orderSubmitted(user_email = 'sam99yu@yahoo.com.sg', order_details)
+
                 // Clear the cart after successful payment
                 this.cartItems = [];
                 localStorage.setItem('cartItems', JSON.stringify(this.cartItems)); // Update cart in local storage
@@ -113,6 +120,33 @@ const app = Vue.createApp({
             } else {
                 // Handle cancellation of checkout
                 alert('Checkout canceled.');
+            }
+        }, async orderSubmitted(user_email, order_details){
+            console.log(user_email, order_details)
+            const url = 'https://4iwam7mfrk.execute-api.ap-southeast-1.amazonaws.com/default/';
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            const body = {
+                user_email: user_email,
+                order_details: order_details
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to submit order');
+                }
+
+                const responseData = await response.json();
+                console.log(responseData); // Placeholder for handling the response
+            } catch (error) {
+                console.error('Error submitting order:', error.message);
             }
         },
 

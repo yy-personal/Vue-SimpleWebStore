@@ -116,31 +116,88 @@ const app = Vue.createApp({
                 } else {
                     this.cartItems.push({ ...item, quantity: 1 });
                 }
-                // Decrease the stock in the catalogue
-                item.stock -= 1;
-                localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
-                // Update the catalogue in localStorage
-                localStorage.setItem('catalogueData', JSON.stringify(this.catalogue));
+                item.stock -= 1; // Decrease the stock in the catalogue
+                localStorage.setItem('cartItems', JSON.stringify(this.cartItems)); // Update cart in local storage
+                localStorage.setItem('catalogueData', JSON.stringify(this.catalogue)); // Update catalogue in local storage
             } else {
                 alert('This item is out of stock.');
             }
         },
         clearCart() {
-            // Loop through each item in the cart
             this.cartItems.forEach(cartItem => {
-                // Find the corresponding item in the catalogue
                 const itemInCatalogue = this.catalogue.find(item => item.product_name === cartItem.product_name);
                 if (itemInCatalogue) {
-                    // Return the stock to its original value
-                    itemInCatalogue.stock += cartItem.quantity;
+                    itemInCatalogue.stock += cartItem.quantity; // Return the stock to its original value
                 }
             });
-            // Clear the cart
-            this.cartItems = [];
-            // Update both the cart and catalogue in Local Storage
-            localStorage.setItem('cartItems', JSON.stringify(this.cartItems));
+            this.cartItems = []; // Clear the cart
+            localStorage.setItem('cartItems', JSON.stringify(this.cartItems)); // Update both the cart and catalogue in Local Storage
             localStorage.setItem('catalogueData', JSON.stringify(this.catalogue));
+        },checkout() {
+            // Calculate the total price of items in the cart
+            let totalPrice = this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+            // Display the total price and provide options for payment
+            const confirmCheckout = confirm(`Total Price: $${totalPrice.toFixed(2)}\nProceed to payment?`);
+            if (confirmCheckout) {
+                // Decrease stock based on items checked out
+                this.cartItems.forEach(cartItem => {
+                    const itemInCatalogue = this.catalogue.find(item => item.product_name === cartItem.product_name);
+                    if (itemInCatalogue) {
+                        itemInCatalogue.stock -= 0; // Decrease stock by the quantity checked out
+                    }
+                });
+
+                // Prepare order details
+                const order_details = this.cartItems.map(cartItem => ({
+                    product_name: cartItem.product_name,
+                    quantity: cartItem.quantity
+                }));
+                this.orderSubmitted(user_email = 'sam99yu@yahoo.com.sg', order_details)
+
+                // Clear the cart after successful payment
+                this.cartItems = [];
+                localStorage.setItem('cartItems', JSON.stringify(this.cartItems)); // Update cart in local storage
+                localStorage.setItem('catalogueData', JSON.stringify(this.catalogue)); // Update catalogue in local storage
+
+                alert('Payment successful. Stock updated.');
+            } else {
+                // Handle cancellation of checkout
+                alert('Checkout canceled.');
+            }
+        }, async orderSubmitted(user_email, order_details){
+            console.log(user_email, order_details)
+            const url = 'https://4iwam7mfrk.execute-api.ap-southeast-1.amazonaws.com/default/';
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            const body = {
+                user_email: user_email,
+                order_details: order_details
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to submit order');
+                }
+
+                const responseData = await response.json();
+                console.log(responseData); // Placeholder for handling the response
+            } catch (error) {
+                console.error('Error submitting order:', error.message);
+            }
+        },
+
+    },
+    computed: {
+        getTotalPrice() {
+            return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
         }
-        
-    }
+    },
 }).mount('#app');
