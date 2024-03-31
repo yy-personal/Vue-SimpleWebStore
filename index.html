@@ -92,7 +92,7 @@
                 <!-- Iterate over random shirts -->
                 <div class="col-md-4" v-for="(shirt, index) in shirtsItems" :key="index">
                     <div class="card mb-3">
-                        <img :src="shirt.filepath" class="card-img-top" alt="Catalogue Item"
+                        <img :src="shirt.image_path" class="card-img-top" alt="Catalogue Item"
                             style="height: 300px; object-fit: contain; width: 100%;">
                         <div class="card-body">
                             <div class="row">
@@ -126,7 +126,7 @@
                 <div class="col-md-4" v-for="(pant, index) in pantsItems" :key="index">
                     <!-- Pant item -->
                     <div class="card mb-3">
-                        <img :src="pant.filepath" class="card-img-top" alt="Pants Item"
+                        <img :src="pant.image_path" class="card-img-top" alt="Pants Item"
                             style="height: 300px; object-fit: contain; width: 100%;">
                         <div class="card-body">
                             <div class="row">

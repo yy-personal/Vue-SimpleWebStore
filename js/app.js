@@ -1,88 +1,18 @@
 const app = Vue.createApp({
     data() {
         return {
-            catalogue: [
-                {
-                    product_name: "Cool Summer Shirt",
-                    gender: "male",
-                    type: "shirt",
-                    price: "19.99",
-                    stock: 10,
-                    filepath: "assets/catalogue/male_shirt/male-shirt1.jpg"
-                },
-                {
-                    product_name: "Classic Denim Pants",
-                    gender: "male",
-                    type: "pant",
-                    price: "39.99",
-                    stock: 5,
-                    filepath: "assets/catalogue/male_pant/male-pants1.jpg"
-                },
-                {
-                    product_name: "Classic Denim Pants2",
-                    gender: "male",
-                    type: "pant",
-                    price: "49.99",
-                    stock: 10,
-                    filepath: "assets/catalogue/male_pant/male-pants2.jpg"
-                },
-                {
-                    product_name: "Casual Male Shirt",
-                    gender: "male",
-                    type: "shirt",
-                    price: "24.99",
-                    stock: 8,
-                    filepath: "assets/catalogue/male_shirt/male-shirt2.jpg"
-                },
-                {
-                    product_name: "Formal Male Shirt",
-                    gender: "male",
-                    type: "shirt",
-                    price: "29.99",
-                    stock: 6,
-                    filepath: "assets/catalogue/male_shirt/male-shirt3.jpg"
-                },
-                {
-                    product_name: "Women's Casual Pants",
-                    gender: "female",
-                    type: "pant",
-                    price: "34.99",
-                    stock: 7,
-                    filepath: "assets/catalogue/female_pant/female-pants1.jpg"
-                },
-                {
-                    product_name: "Women's Office Pants",
-                    gender: "female",
-                    type: "pant",
-                    price: "36.99",
-                    stock: 6,
-                    filepath: "assets/catalogue/female_pant/female-pants2.jpg"
-                },
-                {
-                    product_name: "Trendy Female Shirt",
-                    gender: "female",
-                    type: "shirt",
-                    price: "22.99",
-                    stock: 8,
-                    filepath: "assets/catalogue/female_shirt/female-shirt1.jpg"
-                },
-                {
-                    product_name: "Floral Female Shirt",
-                    gender: "female",
-                    type: "shirt",
-                    price: "26.99",
-                    stock: 5,
-                    filepath: "assets/catalogue/female_shirt/female-shirt2.jpg"
-                }
-            ],
+            catalogue: [],
             filteredItems: [],
             pantsItems: [],
             shirtsItems: [],
             cartItems: [],
         };
     },
-    mounted() {
+    async mounted() {
+        await this.fetchCatalogueData();
         this.populateItems();
+        this.checkHealthStatus('/health');
+        this.checkHealthStatus('/catalogue');
 
         const storedCartItems = localStorage.getItem('cartItems');
         if (storedCartItems) {
@@ -90,6 +20,46 @@ const app = Vue.createApp({
         }
     },
     methods: {
+        async checkHealthStatus(endpoint) {
+            try {
+                let url = endpoint;
+                // If the endpoint does not start with 'http', prepend the current location's origin
+                if (!endpoint.startsWith('http')) {
+                    url = `${window.location.origin}${endpoint}`;
+                }
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log(`Response from ${endpoint}:`, data);
+            } catch (error) {
+                console.error(`Error fetching from ${endpoint}:`, error);
+            }
+        },
+        async fetchCatalogueData(retryCount = 3) {
+            while (retryCount > 0) {
+                try {
+                    // Attempt to fetch catalogue data from the backend
+                    const response = await fetch('api/catalogue');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    this.catalogue = data.result;
+                    console.log('Extracted catalogue data:', this.catalogue);
+                    this.populateItems();
+                    localStorage.setItem('catalogueData', JSON.stringify(this.catalogue));
+                    // Data fetched successfully, break out of the loop
+                    return;
+                } catch (error) {
+                    console.error(`Attempt failed with error: ${error}. Retrying...`);
+                    retryCount--;
+                    // Wait for a moment before retrying (e.g., 2 seconds)
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+            // If all retries fail, show an alert or handle it in a user-friendly manner
+            alert('Failed to load catalogue data. Please try again later.');
+        },
+           
         populateItems() {
             this.pantsItems = this.catalogue.filter(item => item.type === 'pant');
             this.shirtsItems = this.catalogue.filter(item => item.type === 'shirt');
