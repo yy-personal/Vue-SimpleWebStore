@@ -122,14 +122,16 @@ const app = Vue.createApp({
                 alert('Checkout canceled.');
             }
         }, async orderSubmitted(user_email, order_details){
-            console.log(user_email, order_details)
+            // console.log(user_email, order_details)
             const url = 'https://4iwam7mfrk.execute-api.ap-southeast-1.amazonaws.com/default/';
             const headers = {
                 'Content-Type': 'application/json',
             };
+            const result = order_details.map(item => `Product Name: ${item.product_name}, Quantity: ${item.quantity}\n`).join('');
+            console.log(result)
             const body = {
                 user_email: user_email,
-                order_details: order_details
+                order_details: result
             };
 
             try {
