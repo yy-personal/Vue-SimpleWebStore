@@ -11,8 +11,7 @@ const app = Vue.createApp({
     async mounted() {
         await this.fetchCatalogueData();
         this.populateItems();
-        this.checkHealthStatus('/health');
-        this.checkHealthStatus('/catalogue');
+        this.checkHealthStatus('/api/catalogue');
 
         const storedCartItems = localStorage.getItem('cartItems');
         if (storedCartItems) {
@@ -97,14 +96,41 @@ const app = Vue.createApp({
             const confirmCheckout = confirm(`Total Price: $${totalPrice.toFixed(2)}\nProceed to payment?`);
             if (confirmCheckout) {
                 // Decrease stock based on items checked out
+                var productNames = [];
                 this.cartItems.forEach(cartItem => {
                     const itemInCatalogue = this.catalogue.find(item => item.product_name === cartItem.product_name);
+                    productNames.push(cartItem.product_name);
                     if (itemInCatalogue) {
                         itemInCatalogue.stock -= 0; // Decrease stock by the quantity checked out
                     }
                 });
 
-                // Prepare order details
+                var productNames = [];
+
+                fetch('api/transaction', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      transaction_id: Math.random().toString(16).slice(2),
+                      price: totalPrice.toFixed(2),
+                      name: productNames
+                    })
+                  })
+                  .then(response => {
+                    if (response.ok){
+                        console.log(response)
+                    }
+                    if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                    }
+                  })
+                  .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                  });
+
+                // Prepare order details for auto email
                 const order_details = this.cartItems.map(cartItem => ({
                     product_name: cartItem.product_name,
                     quantity: cartItem.quantity
@@ -116,7 +142,7 @@ const app = Vue.createApp({
                 localStorage.setItem('cartItems', JSON.stringify(this.cartItems)); // Update cart in local storage
                 localStorage.setItem('catalogueData', JSON.stringify(this.catalogue)); // Update catalogue in local storage
 
-                alert('Payment successful. Stock updated.');
+                alert('Payment successful. Stock updated. Confirmation email sent');
             } else {
                 // Handle cancellation of checkout
                 alert('Checkout canceled.');

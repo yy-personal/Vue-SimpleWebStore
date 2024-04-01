@@ -15,6 +15,29 @@ app.get('/health', (req, res) => {
     res.json("This is the health check for catalogue");
 });
 
+// Recording transaction to trigger lambda.
+app.post('/transaction', async (req, res) => {
+    const response = await axios.put(
+    'https://wmaprtpzpd.execute-api.ap-southeast-1.amazonaws.com/record',
+    // '{"transaction_id": "123", "price": 12345, "name": "myitem"}',
+    {
+        'transaction_id': req.body.transaction_id,
+        'price': req.body.price,
+        'name': req.body.name,
+    },
+    {
+        headers: {
+        'Content-Type': 'application/json'
+        }
+    }
+    ).then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+})
+
 app.get('/api/health2', (req, res) => {
     res.json({ message: "Health Check 2: Catalogue service is up and running." });
 });
